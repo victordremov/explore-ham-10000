@@ -1,6 +1,5 @@
 from pandas import DataFrame
 
-Path = str
 ImageId = str
 
 TrainWithValidation = DataFrame
