@@ -1,19 +1,18 @@
-import os
 import sys
 from collections import defaultdict
-from logging import getLogger
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import sklearn
+from dataclasses import dataclass
 from ignite.engine import (
     Engine,
     create_supervised_trainer,
     create_supervised_evaluator,
     Events,
 )
-from ignite.metrics import Loss, Accuracy
+from ignite.metrics import Loss, Accuracy, ConfusionMatrix
 from numpy.core.multiarray import ndarray
 from typing import Dict, Tuple, List, Optional, Callable, DefaultDict
 
@@ -31,9 +30,7 @@ from torch import optim, nn
 from torch.utils.data import DataLoader, Dataset
 from torchvision import models, transforms
 
-from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import GroupShuffleSplit
-from sklearn.metrics import classification_report
 
 
 np.random.seed(42)
@@ -44,15 +41,23 @@ torch.cuda.manual_seed(42)
 MODEL_PATH = "best_model.pth"
 
 
-def preprocess_metadata(images_directory: str, metadata_filename: str) -> MetaData:
+def preprocess_metadata(
+    images_directory: str, metadata_filename: str
+) -> Tuple[MetaData, sklearn.preprocessing.LabelEncoder]:
     original_metadata = pd.read_csv(metadata_filename)
-    original_metadata["diagnosis_idx"] = encode_diagnoses(original_metadata)
+    original_metadata["diagnosis_idx"], class_encoder = encode_diagnoses(
+        original_metadata
+    )
     add_path_column_inplace(images_directory, original_metadata)
-    return original_metadata
+    return original_metadata, class_encoder
 
 
-def encode_diagnoses(metadata: MetaData) -> ndarray:
-    return sklearn.preprocessing.LabelEncoder().fit_transform(metadata["dx"])
+def encode_diagnoses(
+    metadata: MetaData
+) -> Tuple[ndarray, sklearn.preprocessing.LabelEncoder]:
+    diagnosis_encoder = sklearn.preprocessing.LabelEncoder()
+    diagnosis_encoder.fit(metadata["dx"])
+    return diagnosis_encoder.transform(metadata["dx"]), diagnosis_encoder
 
 
 def add_path_column_inplace(images_directory: str, metadata: MetaData) -> None:
@@ -126,12 +131,21 @@ def initialize(model: nn.Module, n_classes: int, device: torch.device):
     return image_only_model
 
 
-def main() -> Tuple[
-    nn.Module, DefaultDict[str, List[float]], DefaultDict[str, List[float]]
+@dataclass
+class ConfusionMatrixDTO:
+    matrix_data: Optional[ndarray]
+    class_labels: List[str]
+
+
+def main(max_epochs: int) -> Tuple[
+    nn.Module,
+    DefaultDict[str, List[float]],
+    DefaultDict[str, List[float]],
+    ConfusionMatrixDTO,
 ]:
     directory = Path(__file__) / ".."
 
-    metadata = preprocess_metadata(
+    metadata, class_encoder = preprocess_metadata(
         images_directory=directory / "images",
         metadata_filename=directory / "HAM10000_metadata.csv",
     )
@@ -166,7 +180,7 @@ def main() -> Tuple[
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = initialize(models.resnet152(pretrained=True), n_classes=7, device=device)
 
-    optimizer = optim.SGD(model.parameters(), lr=1e-2, momentum=0.9, nesterov=True)
+    optimizer = optim.Adam(model.parameters(), lr=1e-3)
 
     loss = nn.CrossEntropyLoss().to(device)
     trainer = create_supervised_trainer(
@@ -174,12 +188,16 @@ def main() -> Tuple[
     )
     evaluator = create_supervised_evaluator(
         model=model,
-        metrics={"cross-entropy": Loss(loss), "accuracy": Accuracy()},
+        metrics={
+            "cross-entropy": Loss(loss),
+            "accuracy": Accuracy(),
+            "confusion-matrix": ConfusionMatrix(num_classes=7),
+        },
         device=device,
     )
 
     @trainer.on(Events.ITERATION_COMPLETED)
-    def log_training_loss(trainer: Engine) -> None:
+    def log_training_loss(_: Engine) -> None:
         print(f".", end="", file=sys.stderr)
 
     train_results: DefaultDict[str, List[float]] = defaultdict(list)
@@ -205,47 +223,35 @@ def main() -> Tuple[
         for metric_name, metric_value in metrics.items():
             validation_results[metric_name].append(metric_value)
 
-    scheduller = ReduceLROnPlateau(
+    scheduler = ReduceLROnPlateau(
         optimizer=optimizer, mode="min", factor=0.2, patience=3, verbose=True
     )
 
-    @evaluator.on(Events.COMPLETED)
+    @evaluator.on(Events.EPOCH_COMPLETED)
     def reduce_learning_rate_on_plateau(evaluator: Engine) -> None:
-        scheduller.step(metrics=evaluator.state.metrics["cross-entropy"])
+        scheduler.step(metrics=evaluator.state.metrics["cross-entropy"])
 
     best_validation_loss = None
+    confusion_matrix = ConfusionMatrixDTO(
+        class_labels=class_encoder.classes_.tolist(), matrix_data=None
+    )
 
-    @evaluator.on(Events.COMPLETED)
+    @evaluator.on(Events.EPOCH_COMPLETED)
     def store_best_model(_: Engine) -> None:
         nonlocal best_validation_loss
-        validation_loss = evaluator.state.metrics["cross-entropy"]
+        nonlocal confusion_matrix
+        metrics = evaluator.state.metrics
+        validation_loss = metrics["cross-entropy"]
         if best_validation_loss is None or validation_loss < best_validation_loss:
             best_validation_loss = validation_loss
             torch.save(model.state_dict(), MODEL_PATH)
+            confusion_matrix.matrix_data = metrics[
+                "confusion-matrix"
+            ].numpy()
 
-    trainer.run(train_loader, max_epochs=10)
-    return model, train_results, validation_results
+    trainer.run(train_loader, max_epochs=max_epochs)
+    return model, train_results, validation_results, confusion_matrix
 
 
 if __name__ == "__main__":
-    model, train_metrics, validation_metrics = main()
-    print(
-        """\
-        Train metrics:
-        {metrics}
-    """.format(
-            metrics="\n".join(
-                f"{name}: {scores}" for name, scores in train_metrics.items()
-            )
-        )
-    )
-    print(
-        """\
-        Validation metrics:
-        {metrics}
-    """.format(
-            metrics="\n".join(
-                f"{name}: {scores}" for name, scores in train_metrics.items()
-            )
-        )
-    )
+    model, train_metrics, validation_metrics, confusion_matrix_dto = main(3)
