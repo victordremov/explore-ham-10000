@@ -112,19 +112,38 @@ class HAMDataset(Dataset):
         return X, y
 
 
+def pop_last_fully_connected_layer(model: nn.Module) -> Tuple[nn.Module, nn.Linear]:
+    children = list(model.children())
+    if len(children) <= 1:
+        raise ValueError(
+            f"Only sequential models are supported, {model.__class__} given."
+        )
+    last_child = children.pop()
+    if isinstance(last_child, nn.Linear):
+        last_fully_connected_layer = last_child
+    else:
+        modified_last_child, last_fully_connected_layer = pop_last_fully_connected_layer(
+            last_child
+        )
+        children.append(modified_last_child)
+    return nn.Sequential(*children), last_fully_connected_layer
+
+
 def initialize(model: nn.Module, n_classes: int, device: torch.device):
     class ImageOnlyModel(nn.Module):
         def __init__(self, model: nn.Module, n_classes: int):
             super().__init__()
-            self.cnn = model
+            self.cnn, last_fully_connected_layer = pop_last_fully_connected_layer(model)
+            self.modified_fully_connected_layer = nn.Linear(
+                last_fully_connected_layer.in_features, n_classes
+            )
+
             for parameter in self.cnn.parameters():
                 parameter.requires_grad = False
 
-            self.cnn.fc = nn.Linear(self.cnn.fc.in_features, n_classes)
-
         def forward(self, image):
-            x = self.cnn(image)
-            return x
+            features = self.cnn(image)
+            return self.modified_fully_connected_layer(features)
 
     image_only_model = ImageOnlyModel(model, n_classes=n_classes)
     image_only_model.to(device, non_blocking=True)
