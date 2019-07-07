@@ -7,4 +7,3 @@ TrainWithValidation = DataFrame
 Test = DataFrame
 Holdout = DataFrame
 MetaData = DataFrame
-ClassLabels = ndarray

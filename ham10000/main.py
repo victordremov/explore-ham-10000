@@ -137,7 +137,9 @@ class ConfusionMatrixDTO:
     class_labels: List[str]
 
 
-def main(max_epochs: int) -> Tuple[
+def main(
+    max_epochs: int
+) -> Tuple[
     nn.Module,
     DefaultDict[str, List[float]],
     DefaultDict[str, List[float]],
@@ -203,6 +205,21 @@ def main(max_epochs: int) -> Tuple[
     train_results: DefaultDict[str, List[float]] = defaultdict(list)
     validation_results: DefaultDict[str, List[float]] = defaultdict(list)
 
+    best_validation_loss = None
+    confusion_matrix = ConfusionMatrixDTO(
+        class_labels=class_encoder.classes_.tolist(), matrix_data=None
+    )
+
+    def store_best_model(engine: Engine) -> None:
+        nonlocal best_validation_loss
+        nonlocal confusion_matrix
+        metrics = engine.state.metrics
+        validation_loss = metrics["cross-entropy"]
+        if best_validation_loss is None or validation_loss < best_validation_loss:
+            best_validation_loss = validation_loss
+            torch.save(model.state_dict(), MODEL_PATH)
+            confusion_matrix.matrix_data = metrics["confusion-matrix"].numpy()
+
     @trainer.on(Events.EPOCH_COMPLETED)
     def log_training_results(trainer: Engine) -> None:
         evaluator.run(train_loader)
@@ -213,41 +230,24 @@ def main(max_epochs: int) -> Tuple[
         for metric_name, metric_value in metrics.items():
             train_results[metric_name].append(metric_value)
 
-    @trainer.on(Events.EPOCH_COMPLETED)
-    def log_validation_results(trainer: Engine) -> None:
-        evaluator.run(validation_loader)
-        metrics = evaluator.state.metrics
-        print(
-            f"Validation Results - Epoch: {trainer.state.epoch}  Avg accuracy: {metrics['accuracy']:.2f} Avg loss: {metrics['cross-entropy']:.2f}"
-        )
-        for metric_name, metric_value in metrics.items():
-            validation_results[metric_name].append(metric_value)
-
     scheduler = ReduceLROnPlateau(
         optimizer=optimizer, mode="min", factor=0.2, patience=3, verbose=True
     )
 
-    @evaluator.on(Events.EPOCH_COMPLETED)
-    def reduce_learning_rate_on_plateau(evaluator: Engine) -> None:
-        scheduler.step(metrics=evaluator.state.metrics["cross-entropy"])
+    def reduce_learning_rate_on_plateau(engine: Engine) -> None:
+        scheduler.step(metrics=engine.state.metrics["cross-entropy"])
 
-    best_validation_loss = None
-    confusion_matrix = ConfusionMatrixDTO(
-        class_labels=class_encoder.classes_.tolist(), matrix_data=None
-    )
-
-    @evaluator.on(Events.EPOCH_COMPLETED)
-    def store_best_model(_: Engine) -> None:
-        nonlocal best_validation_loss
-        nonlocal confusion_matrix
+    @trainer.on(Events.EPOCH_COMPLETED)
+    def log_validation_results(engine: Engine) -> None:
+        evaluator.run(validation_loader)
         metrics = evaluator.state.metrics
-        validation_loss = metrics["cross-entropy"]
-        if best_validation_loss is None or validation_loss < best_validation_loss:
-            best_validation_loss = validation_loss
-            torch.save(model.state_dict(), MODEL_PATH)
-            confusion_matrix.matrix_data = metrics[
-                "confusion-matrix"
-            ].numpy()
+        print(
+            f"Validation Results - Epoch: {engine.state.epoch}  Avg accuracy: {metrics['accuracy']:.2f} Avg loss: {metrics['cross-entropy']:.2f}"
+        )
+        for metric_name, metric_value in metrics.items():
+            validation_results[metric_name].append(metric_value)
+        reduce_learning_rate_on_plateau(evaluator)
+        store_best_model(evaluator)
 
     trainer.run(train_loader, max_epochs=max_epochs)
     return model, train_results, validation_results, confusion_matrix
