@@ -79,19 +79,23 @@ First thing I deduplicated descriptions of lesions that have several images. Spe
 Interpretable metrics:
 - sensitivity and specificity for each class evaluated on validation data
 
-These two metrics allow us to compare human experts with the model and also to tune class weights to transform logits to class label.
+    These two metrics allow us to compare human experts with the model and also to tune class weights to transform logits to class label.
+
 - confusion matrix evaluated on validation data
 
-this is also very valuable to find out how exactly the model make mistakes. Each non-diagonal item negatively impacts patient's health, spends time of patient and doctors and increase treatment cost. For example, if melanocytic nevi is misclassified as melanoma - it will be excited. The impact on health varies from 14 days of post-treatment to death. Another story is when melanocytic nevi is misclassified as dermatofibroma - both are benign so there is no impact on health.
+    As we use the model in order to define treatment type for patients it is important what type of mistakes model makes. Each non-diagonal item negatively impacts patient's health, spends time of patient and doctors and increase treatment cost. But actual mistake cost varies: 
+    - For example, if melanocytic nevi is misclassified as dermatofibroma - there is no impact on health as they are both benign.
+    - If melanocytic nevi is misclassified as melanoma - it will be excised. The impact on health varies from 3 days of post-treatment to 14 days of post-treatment and possible complications. 
+    - If malanoma is misclassified as melanocytic nevi, it will be left untreated for about 6-12 months until next examination. This time is critical for melanoma patients. Late start of treatment makes it much more costly and less efficient.
 
-More sensitive (but sadly not interpretable) approximations:
+Having these losses (time, treatment cost, impact on patient health) estimated and put in the same scale, we can evaluate how well our models solves specific business goals. This helps us greatly to specify optimization problem and directly optimize what business needs.
+
+More sensitive (but sadly not interpretable) metrics:
 - mean difference between predicted probability of the true class and predicted probability of the predicted class
+
 All models we build here optimize cross-entropy internally, so it will also be included in statistics.
 - cross-entropy
 
-
-
-Having this losses estimated and [сведены] in same scale, we can evaluate our models directly with business metrics. This greatly helps us formulate optimization problem and directly optimize what business needs.
 
 ### Specify a verification method for the final model and verify the model. You can split the dataset as you wish but motivate and explain your choices.
 Group different images of same lesion and then cross-validate with stratified 3-fold. Validation images are augmented the same way as training set.
