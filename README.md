@@ -7,7 +7,9 @@ The report is focused on
 1) planning product development process that allows short iteration-feedback loop
 1) prototyping base solution to have enough data to discuss with dermatologists
 
-In my experience, developing stable course of actions gives much more results then concentrating on model building. The modeling is a part of business - data - modeling - evaluation - [where/how to use ~ deployment] ensemble. At the initial step the problem to be solve is very vague and so is where and how the model is to be used. So it is mostly a waste of time to fine-tune model when considering the problem will significantly change in weeks. It is much better to fine-tune the problem itself as this heavily impacts data preparation, modeling, evaluation and deployment.
+In my experience, understanding strategic goals and developing step by step approach on how to reach them gives much more results than concentrating on model building as a task in itself. I see modeling as a part of product development cycle: business goals - data gathering - modeling - evaluation - production. Modeling is very much dependant on such factors as: who will be users of the model -patients or doctors, what budget we have in the company, what is the optimal balance between quality of improved diagnostics and its cost, application methods - online or embedded into diagnostics systems, etc 
+
+At the initial step the problem to be solved is very vague and so is where and how the model to be used. So it is mostly a waste of time to fine-tune the model considering the problem will most likely change significantly with time. It is much better to specify the problem itself as this heavily impacts data preparation, modeling, evaluation and deployment.
 
 ## Getting initial data understanding
 ### First look at the data:
