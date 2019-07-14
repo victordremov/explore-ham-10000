@@ -108,3 +108,8 @@ images/*
 
 # pycharm
 .idea/*
+
+# images and stored models
+*.jpg
+*.pth
+
