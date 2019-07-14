@@ -88,7 +88,7 @@ Interpretable metrics:
     - If melanocytic nevi is misclassified as melanoma - it will be excised. The impact on health varies from 3 days of post-treatment to 14 days of post-treatment and possible complications. 
     - If malanoma is misclassified as melanocytic nevi, it will be left untreated for about 6-12 months until next examination. This time is critical for melanoma patients. Late start of treatment makes it much more costly and less efficient.
 
-Having these losses (time, treatment cost, impact on patient health) estimated and put in the same scale, we can evaluate how well our models solves specific business goals. This helps us greatly to specify optimization problem and minimize cumulative costs.
+    Having these losses (time, treatment cost, impact on patient health) estimated and put in the same scale, we can evaluate how well our models solves specific business goals. This helps us greatly to specify optimization problem and minimize cumulative costs.
 
 More sensitive (but sadly not interpretable) metrics:
 - mean difference between predicted probability of the true class and predicted probability of the predicted class
