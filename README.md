@@ -44,9 +44,11 @@ The process of building prototype is described below.
 ### Explore different model architectures / hyper parameter settings and compare their performance.
 So first thing I deduplicated descriptions of lesions that have several images. Specifically, images of same lesion were grouped into single list. This removes bias made by duplicated sex, age and lesion localization.
 [TODO example]
+
 Interpretable metrics:
 - classification report (for interview)
 - sensitivity and specificity for each class (for interview)
+
 More sensitive (but sadly not interpretable) approximations:
 - mean difference between predicted probability of the true class and predicted probability of the predicted class
 All models optimize cross-entropy internally, so it will also be included in statistics.
