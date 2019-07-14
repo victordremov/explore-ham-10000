@@ -31,7 +31,7 @@ This chapter contains only generic ideas. The list should be complemented after 
 ### Generic problems in skin cancer diagnostics and probable solutions
 Problem | Solution | Usage | Effect
 --- | --- | --- | ---
-Treatment cost is high | Build a model that detects a specific malignant lesion type with same sensitivity (true positive rate) as human experts but higher specificity (true negative rate)| Use model as a "second opinion" tool for dermatoscopists | Less benigh lesions are to be biopsyed or excited leading to less treatment and after-treatment costs. Also, less impact on health of patients with benigh lesions
+Treatment cost is high | Build a model that detects a specific malignant lesion type with same sensitivity (true positive rate) as human experts but higher specificity (true negative rate)| Use model as a "second opinion" tool for dermatologists | Less benigh lesions are to be biopsyed or excited leading to less treatment and after-treatment costs. Also, less impact on health of patients with benigh lesions
 Not enough dermatologists, patients have to wait for diagnosis | Build a model that classifies malignant lesions over benigh ones with very high specificity | Images are taken by lower medical personal, processed on the remote server at the time of осмотр, patients with easiest benigh lesions do not further осматриваются, other are routed to specialists | Part of the patients are handled by lower medical personal, the time of specialists is used more effectively, patients spend less time waiting for diagnostics
 Dermatologists are unavailable e.g. in rural areas | same as previous | same as previous | Basic diagnostics is accessible even in rural areas
 Patients want to verify their diagnosis | Find out cost and impact on health of misclassification for each (true class, predicted class) pair and train model that performs comparable to human experts | Make an online tool to classify dermascopic images | Less malpractice and a strong marketing tool
@@ -87,8 +87,7 @@ Having this losses estimated and [сведены] in same scale, we can evaluate
 Group different images of same lesion and then cross-validate with stratified 3-fold. Validation images are augmented the same way as training set.
 Stratification is used to fight class imbalance, and there only 3 folds to increase training speed.
 
-### Comment on the statistical significance of the verification results.
-TODO: comment
+TODO: statistical significance of the verification results.
 
 ### Visualize the results and the learning procedure.
 TODO: paste images
