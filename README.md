@@ -23,10 +23,10 @@ To sum up, it is really important to specify the problem itself as this heavily 
 - Dataset is thoroughly verified: Each diagnosis has been verified for plausibility by two specialists independently and lesions with implausible diagnoses are removed.
 - Treatment for various diagnoses varies from doing nothing or follow-up to taking biopsy and excision the lesion as soon as possible. It means that 1) correct diagnoses save much work, time, money and is beneficial for patient's health and 2) impact level of wrong diagnosis varies very heavily depending on what is the true lesion type and what type is predicted.
 - About 95% of pigmented lesions types are covered by the dataset while more rare types are excluded.
-- Important features for images are: is the structure symmetric, color and quantity of colored [вкрапления].
+- Such features of lesions as: structure symmetry, color and quantity of colored inclusions, are important for correct diagnostics. For better problem solving, our model should extract these features. 
 
 ## Basic business understanding
-This chapter contains only generic ideas. The list should be [дополнен] after interviewing doctors and patients. Existing items should be specified after interviewing the doctors, obtaining skin cancer diagnostics details and statistics and getting feedback from experts.
+This chapter contains only generic ideas. The list should be complemented after interviewing doctors and patients. Existing items should be specified after interviewing the doctors, obtaining skin cancer diagnostics details and statistics and getting feedback from experts.
 
 ### Generic problems in skin cancer diagnostics and probable solutions
 Problem | Solution | Usage | Effect
