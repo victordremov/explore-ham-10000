@@ -29,7 +29,7 @@ To sum up, it is really important to specify the problem itself as this heavily 
 This chapter contains only generic ideas. The list should be complemented after interviewing doctors and patients. Existing items should be specified after interviewing the doctors, obtaining skin cancer diagnostics details and statistics and getting feedback from experts.
 
 ### Generic problems in skin cancer diagnostics and probable solutions
-Problem | Solution | Usage | Effect
+Problem | Solution | Application | Effect
 --- | --- | --- | ---
 Treatment cost is high | Build a model that detects a specific malignant lesion type with same sensitivity (true positive rate) as human experts but higher specificity (true negative rate)| Use model as a "second opinion" tool for dermatologists | Less benign lesions are to be biopsyed or excised leading to lower treatment and after-treatment costs. Also, lower impact on health of patients with benign lesions
 Not enough dermatologists, patients have to wait for diagnosis | Build a model that classifies malignant lesions over benign ones with very high specificity | Images are taken by lower medical personal, processed on the remote server at the time of осмотр, patients with easiest benign lesions do not further осматриваются, other are routed to specialists | Part of the patients are handled by lower medical personal, the time of specialists is used more effectively, patients spend less time waiting for diagnostics
