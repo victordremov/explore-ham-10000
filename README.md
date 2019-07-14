@@ -42,33 +42,25 @@ This chapter aims to build a prototype and describe it in a way that is can be i
 The process of building prototype is described below. 
 
 ### Explore different model architectures / hyper parameter settings and compare their performance.
-So first thing I deduplicated descriptions of lesions that have several images. Specifically, images of same lesion were grouped into single list. This removes bias made by duplicated sex, age and lesion localization.
-[TODO example]
 
-Interpretable metrics:
-- classification report (for interview)
-- sensitivity and specificity for each class (for interview)
+4 models were built. They are similar but differ by set of used features. 
+Model 1 - logistic regression, Models 2-4 - are convolutional neural networks based on DenseNet201 architecture. 
 
-More sensitive (but sadly not interpretable) approximations:
-- mean difference between predicted probability of the true class and predicted probability of the predicted class
-All models optimize cross-entropy internally, so it will also be included in statistics.
-- cross-entropy
+1. Logistic regression on one-hot encoded sex, age and lesion's localization. Images are ignored.
 
-1. Logistic regression on one-hot-encoded sex, age and lesion's localization. Images are ignored.
-
-    Metrics values:
+    Metrics values: TODO
 
 2. Use frosen pretrained DenseNet201 to extract features from images, train logistic regression upon these features. Sex, age and lesions's localization are ignored.
     
-    Metrics values:
+    Metrics values: TODO
 
 3. Finetuning pretrained DenseNet201 with last fully-connected layer changed to match actual class count. Sex, age and lesions's localization are ignored.
  
-    Metrics values:
+    Metrics values: TODO
 
-4. Use all features: features are extracted from with pretrained DenseNet201 with last fully-connected layer removed, concatenate them with one-hot-encoded sex, age and lesion's localization and stack a fully connected layer upon them.
+4. Use all features: features are extracted from with pretrained DenseNet201 with last fully-connected layer removed, concatenated with one-hot encoded sex, age and lesion's localization and a fully connected layer stacked upon them.
 
-    Metrics values:
+    Metrics values: TODO
 
 ### The data set is quite small, what kind of implications does it have on your choices to solve the problem?
 1) Image feature extractors are underfitted because input is not very diverse. This is overcomed by using transfer learning - CNN initialized with a good initial point trains faster and usually performs better. Also image augmenting increase input diversity. In this work images augmented with random rescaling, rotation and reflection to imitate making image from different angle and with different magnifying.
@@ -81,9 +73,22 @@ All models optimize cross-entropy internally, so it will also be included in sta
 - decrease learning rate reaching plateau
 
 ### Suggest a performance metric for the model and explain its clinical relevance
+First thing I deduplicated descriptions of lesions that have several images. Specifically, images of same lesion were grouped into single list. This removes bias made by duplicated sex, age and lesion localization.
+[TODO example]
+
+Interpretable metrics:
+- confusion matrix  
+- sensitivity and specificity for each class 
+
+More sensitive (but sadly not interpretable) approximations:
+- mean difference between predicted probability of the true class and predicted probability of the predicted class
+All models we build here optimize cross-entropy internally, so it will also be included in statistics.
+- cross-entropy
+
+
 - sensitivity and specificity for each class evaluated on validation data
 These two metrics allows us to compare human experts with the model and also to tune class weights to transform logits to class label.
-- classification report evaluated on validation data: this is also very valueable to find out how exactly the model make mistakes. Each non-diagonal item negatively impacts patient's health, spends time of patient and doctors and increase treatment cost. For example, if melanocytic nevi is misclassified as melanoma - it will be excited. The impact on health varies from 14 days of post-treatment to death. Another story is when melanocytic nevi is misclassified as dermatofibroma - both are benign so there is no impact on health.
+- confusion matrix evaluated on validation data: this is also very valueable to find out how exactly the model make mistakes. Each non-diagonal item negatively impacts patient's health, spends time of patient and doctors and increase treatment cost. For example, if melanocytic nevi is misclassified as melanoma - it will be excited. The impact on health varies from 14 days of post-treatment to death. Another story is when melanocytic nevi is misclassified as dermatofibroma - both are benign so there is no impact on health.
 
 Having this losses estimated and [сведены] in same scale, we can evaluate our models directly with business metrics. This greatly helps us formulate optimization problem and directly optimize what business needs.
 
