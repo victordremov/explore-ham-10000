@@ -9,20 +9,20 @@ The report is focused on
 
 In my experience, understanding strategic goals and developing step by step approach on how to reach them gives much more results than concentrating on model building as a task in itself. I see modeling as a part of product development cycle: business goals - data gathering - modeling - evaluation - production. Modeling is very much dependant on such factors as: who will be users of the model -patients or doctors, what budget we have in the company, what is the optimal balance between quality of improved diagnostics and its cost, application methods - online or embedded into diagnostics systems, etc 
 
-At the initial step the problem to be solved is very vague and so is where and how the model to be used. So it is mostly a waste of time to fine-tune the model considering the problem will most likely change significantly with time. It is much better to specify the problem itself as this heavily impacts data preparation, modeling, evaluation and deployment.
+To sum up, it is really important to specify the problem itself as this heavily impacts data preparation, modeling, evaluation and deployment.
 
 ## Getting initial data understanding
-### First look at the data:
+### First look at the data allowed for the conclusions below:
 - 7470 pigmented lesions with 1-6 images each, 10015 lesion images in total
-- Each lesion annotated with lesion's localization, patient's age and sex, and how the diagnosis was obtained
+- Each lesion described with lesion's localization, patient's age and sex, and how the diagnosis was obtained
 - 7 different diagnosis, highly unbalanced class size
-- Lesion classes distributions among specific sex significally differs from lesion class distribution among all patients. For instance, [TODO paste example]. It means that patient's sex is a valueble feature for diagnostics. The same holds for patient age and lesion localization.
+- Lesion classes distributions among specific sex significally differs from lesion class distribution among all patients. For instance, [TODO paste example]. It means that patient's sex is a valuable feature for diagnostics. The same holds for patient age and lesion localization.
 
 ### Diving into description paper (TODO add link)
 - Blurry and insufficiently scaled images, non-pigmented lesions are removed from the dataset
-- Dataset is thorougthly cleaned. Each diagnosis has been verified for plausibility by two specialists independly and lesions with implausible diagnosis are removed.
-- Treatment for various diagnisis varies from do nothing or follow-up to biopsy and excise the lesion as soon as possible. It means that 1) correct diagnosis save much work, time, money and patient's health and 2) impact of wrong diagnosis varies very heavily depending on what is the true class and what is predicted.
-- About 95% of known pigmented lesions are covered by the dataset while more редкие types are excluded.
+- Dataset is thoroughly verified: Each diagnosis has been verified for plausibility by two specialists independently and lesions with implausible diagnoses are removed.
+- Treatment for various diagnoses varies from doing nothing or follow-up to taking biopsy and excision the lesion as soon as possible. It means that 1) correct diagnoses save much work, time, money and is beneficial for patient's health and 2) impact level of wrong diagnosis varies very heavily depending on what is the true lesion type and what type is predicted.
+- About 95% of pigmented lesions types are covered by the dataset while more rare types are excluded.
 - Important features for images are: is the structure symmetric, color and quantity of colored [вкрапления].
 
 ## Basic business understanding
