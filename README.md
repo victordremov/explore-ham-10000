@@ -36,15 +36,15 @@ Not enough dermatologists, patients have to wait for diagnosis | Build a model t
 Dermatologists are unavailable e.g. in rural or remote areas | same as previous | same as previous | Basic diagnostics is accessible even in rural and remote areas
 Patients want to verify their diagnosis | Find out cost and impact on health of misclassification for each (true class, predicted class) pair and train model that performs comparable to human experts | Make an online tool to classify dermatoscopic images | Accessible "second opinion" leads to lower rate of medical errors which is beneficial for society. Also it is a strong marketing tool for company
 
-## Base solution prototyping
+## Building model prototype
 This chapter aims to build a prototype and describe it in a way that is can be interpreted by doctors. No fine-tuning here, it is too early for this - problems to be solved are yet to be chosen and evaluation metrics are tightly connected with them. So the goal is to build a model to interview medical community experts (dermatologists, oncologists) and validate it. During such a discussion we will focus on areas of application, comparative analysis with human diagnostics, artefacts, other input from experts. 
 
 The process of building prototype is described below. 
 
-### Explore different model architectures / hyper parameter settings and compare their performance.
+### Exploring different model architectures / hyper parameter settings and compare their performance.
 
 4 models were built. They are similar but differ by set of used features. 
-Model 1 - logistic regression, Models 2-4 - are convolutional neural networks based on DenseNet201 architecture. 
+Model 1 - logistic regression, Models 2-4 - are convolutional neural networks (CNN) based on DenseNet201 architecture. 
 
 1. Logistic regression on one-hot encoded sex, age and lesion's localization. Images are ignored.
 
@@ -62,17 +62,17 @@ Model 1 - logistic regression, Models 2-4 - are convolutional neural networks ba
 
     Metrics values: TODO
 
-### The data set is quite small, what kind of implications does it have on your choices to solve the problem?
-1) Image feature extractors are underfitted because input is not very diverse. This is overcomed by using transfer learning - CNN initialized with a good initial point trains faster and usually performs better. Also image augmenting increase input diversity. In this work images augmented with random rescaling, rotation and reflection to imitate making image from different angle and with different magnifying.
+### Small data set size implications on choices to solve the problem
+1) Image feature extractors are underfitted because input is not very diverse. This may be overcome by using transfer learning - CNN initialized with a good initial point trains faster and usually performs better. Also image augmentation increase input diversity. In this work images augmented with random rescaling, rotation and reflection to imitate making image from different angles and with various magnification.
 2) Add data from other datasets (not done in this report)
 3) When comparing models with very close performance, sometimes we have to use k-fold validation or even repeated k-fold validation to lower p-value and confidence interval for metrics (not done in this report).
 
-### Select and describe a suitable set of training techniques.
-- data augmentation: images are randomly rotated, cropped and resized. Sex, and location are one hot encoded. Age is not one hot encoded but instead encoded as several 0/1 columns: (age <= 0), (age <= 5), (age <= 10) and so on to presume age order. Missing values are filled with column mean.
-- store model at iteration that gives best result on validation set
+### Selection and description of a suitable set of training techniques.
+- data augmentation: images are randomly rotated, cropped and resized. Sex, and location are one-hot encoded. Age is encoded as several 0/1 columns: (age <= 0), (age <= 5), (age <= 10) and so on to presume age order. Missing values are filled with column mean.
+- save model at the epoch that gives best result on validation set
 - decrease learning rate reaching plateau
 
-### Suggest a performance metric for the model and explain its clinical relevance
+### Suggestion of a performance metric for the model and explaining its clinical relevance
 First thing I deduplicated descriptions of lesions that have several images. Specifically, images of same lesion were grouped into single list. This removes bias made by duplicated sex, age and lesion localization.
 [TODO example]
 
