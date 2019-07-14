@@ -42,7 +42,7 @@ This chapter aims to build a prototype and describe it in a way that is can be i
 The process of building prototype is described below. 
 
 ### Explore different model architectures / hyper parameter settings and compare their performance.
-So first thing I did was group rows containing same lesion into one row with image ids combined into list. This remove bias made by duplicated sex, age and lesion localization.
+So first thing I deduplicated descriptions of lesions that have several images. Specifically, images of same lesion were grouped into single list. This removes bias made by duplicated sex, age and lesion localization.
 [TODO example]
 Interpretable metrics:
 - classification report (for interview)
