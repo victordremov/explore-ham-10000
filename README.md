@@ -37,7 +37,9 @@ Dermatologists are unavailable e.g. in rural or remote areas | same as previous 
 Patients want to verify their diagnosis | Find out cost and impact on health of misclassification for each (true class, predicted class) pair and train model that performs comparable to human experts | Make an online tool to classify dermatoscopic images | Accessible "second opinion" leads to lower rate of medical errors which is beneficial for society. Also it is a strong marketing tool for company
 
 ## Base solution prototyping
-This chapter aims to build a prototype and describe it in a way that is can be interpreted by doctors. No fine-tuning here, it is too early for this - problem to be solve is yet to be chosen and evaluation metric is tightly connected with it. So the goal is to build a model to show on the first interview with a dermatologist and focus on something that is there and make discussion more product-oriented.
+This chapter aims to build a prototype and describe it in a way that is can be interpreted by doctors. No fine-tuning here, it is too early for this - problems to be solved are yet to be chosen and evaluation metrics are tightly connected with them. So the goal is to build a model to interview medical community experts (dermatologists, oncologists) and validate it. During such a discussion we will focus on areas of application, comparative analysis with human diagnostics, artefacts, other input from experts. 
+
+The process of building prototype is described below. 
 
 ### Explore different model architectures / hyper parameter settings and compare their performance.
 So first thing I did was group rows containing same lesion into one row with image ids combined into list. This remove bias made by duplicated sex, age and lesion localization.
