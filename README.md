@@ -79,7 +79,7 @@ All models optimize cross-entropy internally, so it will also be included in sta
 ### Suggest a performance metric for the model and explain its clinical relevance
 - sensitivity and specificity for each class evaluated on validation data
 These two metrics allows us to compare human experts with the model and also to tune class weights to transform logits to class label.
-- classification report evaluated on validation data: this is also very valueable to find out how exactly the model make mistakes. Each non-diagonal item negatively impacts patient's health, spends time of patient and doctors and increase treatment cost. For example, if melanocytic nevi is misclassified as melanoma - it will be excited. The impact on health varies from 14 days of post-treatment to death. Another story is when melanocytic nevi is misclassified as dermatofibroma - both are benigh so there is no impact on health.
+- classification report evaluated on validation data: this is also very valueable to find out how exactly the model make mistakes. Each non-diagonal item negatively impacts patient's health, spends time of patient and doctors and increase treatment cost. For example, if melanocytic nevi is misclassified as melanoma - it will be excited. The impact on health varies from 14 days of post-treatment to death. Another story is when melanocytic nevi is misclassified as dermatofibroma - both are benign so there is no impact on health.
 
 Having this losses estimated and [сведены] in same scale, we can evaluate our models directly with business metrics. This greatly helps us formulate optimization problem and directly optimize what business needs.
 
