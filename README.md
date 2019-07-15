@@ -1,4 +1,4 @@
-﻿# Exploring HAM 10000 Skin Cancer Dataset
+# Exploring HAM 10000 Skin Cancer Dataset
 2019.07.13 - 2019.07.14
 
 ## Report structure
@@ -18,7 +18,7 @@ To sum up, it is really important to specify the problem itself as this heavily 
 - 7 different diagnosis, highly unbalanced class size
 - Lesion classes distributions among specific sex significally differs from lesion class distribution among all patients. For instance, [TODO paste example]. It means that patient's sex is a valuable feature for diagnostics. The same holds for patient age and lesion localization.
 
-### Diving into description paper (TODO add link)
+### Diving into [dataset descriptor paper](https://arxiv.org/ftp/arxiv/papers/1803/1803.10417.pdf "Tschandl, P. et al. The HAM10000 dataset, a large collection of multi-source dermatoscopic images of common pigmented skin lesions. Sci. Data 5:180161 doi: 10.1038/ sdata.2018.161 (2018).")
 - Blurry and insufficiently scaled images, non-pigmented lesions are removed from the dataset
 - Dataset is thoroughly verified: Each diagnosis has been verified for plausibility by two specialists independently and lesions with implausible diagnoses are removed.
 - Treatment for various diagnoses varies from doing nothing or follow-up to taking biopsy and excision the lesion as soon as possible. It means that 1) correct diagnoses save much work, time, money and is beneficial for patient's health and 2) impact level of wrong diagnosis varies very heavily depending on what is the true lesion type and what type is predicted.
