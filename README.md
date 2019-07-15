@@ -25,6 +25,13 @@ To sum up, it is really important to specify the problem itself as this heavily 
 - About 95% of pigmented lesions types are covered by the dataset while more rare types are excluded.
 - Such features of lesions as: structure symmetry, color and quantity of colored inclusions, are important for correct diagnostics. For better problem solving, our model should extract these features. 
 
+### Validating lesion types representation in dataset
+Lesion type frequences in the dataset does not represent real world frequences.
+
+For instance, [Skin cancer foundation](www.skincancer.org) statistics tells us that pigmented basal cell carcinoma is 6 times more common then pigmented melanoma in the USA. Even if proportion is different in other countries, it is highly unlikely for melanoma to be 2 times more common in the dataset.
+
+It means that before evaluating the model, class weights should be defined to match actual lesion types frequences.
+
 ## Basic business understanding
 This chapter contains only generic ideas. The list should be complemented after interviewing doctors and patients. Existing items should be specified after interviewing the doctors, obtaining skin cancer diagnostics details and statistics and getting feedback from experts.
 
