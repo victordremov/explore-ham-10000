@@ -15,8 +15,8 @@ To sum up, it is really important to specify the problem itself as this heavily 
 ### First look at the data allowed for the conclusions below:
 - 7470 pigmented lesions with 1-6 images each, 10015 lesion images in total
 - Each lesion described with lesion's localization, patient's age and sex, and how the diagnosis was obtained
-- 7 different diagnosis, highly unbalanced class size
-- Lesion classes distributions among specific sex significally differs from lesion class distribution among all patients. For instance, [TODO paste example]. It means that patient's sex is a valuable feature for diagnostics. The same holds for patient age and lesion localization.
+- 7 different diagnosis, highly unbalanced class size. Most common lesion type in dataset with 5400 examples is melanocitic nevi. Least common is dermatofibroma having 73 examples.
+- Lesion types distribution significally differs for males and females. For instance, melanoma is significantly more common among males then among female (for significance level 0.5%). It means that patient's sex is a valuable feature for diagnostics. The same holds for patient age and lesion localization.
 
 ### Diving into [dataset descriptor paper](https://arxiv.org/ftp/arxiv/papers/1803/1803.10417.pdf "Tschandl, P. et al. The HAM10000 dataset, a large collection of multi-source dermatoscopic images of common pigmented skin lesions. Sci. Data 5:180161 doi: 10.1038/ sdata.2018.161 (2018).")
 - Blurry and insufficiently scaled images, non-pigmented lesions are removed from the dataset
