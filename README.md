@@ -51,13 +51,13 @@ The process of building prototype is described below.
 ### Exploring different model architectures / hyper parameter settings and compare their performance.
 
 4 models were built. They are similar but differ by set of used features. 
-Model 1 - logistic regression, Models 2-4 - are convolutional neural networks (CNN) based on DenseNet201 architecture. 
+Model 1 - logistic regression, Models 2-4 - are convolutional neural networks (CNN) based on DenseNet121 architecture. 
 
 1. Logistic regression on one-hot encoded sex, age and lesion's localization. Images are ignored.
 
 ![Confusion matrix for linear regression that uses categorical features only](categorical-features-only.png)
 
-2. Use frosen pretrained DenseNet201 to extract features from images, train logistic regression upon these features. Sex, age and lesions's localization are ignored.
+2. Use frosen pretrained DenseNet121 to extract features from images, train logistic regression upon these features. Sex, age and lesions's localization are ignored.
     
     Metrics values: TODO
 
