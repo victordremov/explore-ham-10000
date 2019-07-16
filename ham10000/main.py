@@ -1,3 +1,4 @@
+import random
 import sys
 from collections import defaultdict
 from pathlib import Path
@@ -16,6 +17,7 @@ from ignite.metrics import Loss, Accuracy, ConfusionMatrix
 from numpy.core.multiarray import ndarray
 from typing import Dict, Tuple, List, Optional, Callable, DefaultDict
 
+from sklearn.preprocessing import OneHotEncoder
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torchvision.transforms import Compose, ToTensor
 
@@ -30,6 +32,7 @@ from torch import optim, nn
 from torch.utils.data import DataLoader, Dataset
 from torchvision import models, transforms
 
+from sklearn.model_selection import GroupShuffleSplit, StratifiedShuffleSplit
 from sklearn.model_selection import GroupShuffleSplit
 
 
@@ -38,18 +41,43 @@ torch.manual_seed(42)
 torch.cuda.manual_seed(42)
 
 
-MODEL_PATH = "best_model.pth"
-
-
 def preprocess_metadata(
-    images_directory: str, metadata_filename: str
-) -> Tuple[MetaData, sklearn.preprocessing.LabelEncoder]:
-    original_metadata = pd.read_csv(metadata_filename)
+    images_directory: Path, metadata_filename: Path
+) -> Tuple[MetaData, sklearn.preprocessing.LabelEncoder, List[str]]:
+    original_metadata = pd.read_csv(metadata_filename, na_values=["unknown"])
     original_metadata["diagnosis_idx"], class_encoder = encode_diagnoses(
         original_metadata
     )
-    add_path_column_inplace(images_directory, original_metadata)
-    return original_metadata, class_encoder
+    add_path_column_inplace(str(images_directory), original_metadata)
+    paths = original_metadata.groupby(by="lesion_id").agg(
+        {"path": lambda x: x.tolist()}
+    )
+    paths.rename(columns={"path": "paths"}, inplace=True)
+    metadata = original_metadata.groupby(by="lesion_id")[
+        ["diagnosis_idx", "lesion_id", "sex", "localization", "age"]
+    ].first()
+    metadata = metadata.join(paths)
+    metadata.reset_index(inplace=True, drop=True)
+    categorical_features_columns = []
+    for column in ["sex", "localization"]:
+        known_values = metadata.loc[~metadata[column].isnull(), column]
+        one_hot_encoded = pd.get_dummies(known_values)
+        one_hot_encoded_columns = one_hot_encoded.columns.tolist()
+        categorical_features_columns.extend(one_hot_encoded_columns)
+        metadata = metadata.join(one_hot_encoded)
+        metadata.fillna(
+            metadata[one_hot_encoded_columns].mean().to_dict(), inplace=True
+        )
+    age_groups = np.unique(metadata.loc[~metadata["age"].isnull(), "age"]).astype(int)
+    age_columns = []
+    for age_threshold in age_groups[1:]:
+        column = f"age_at_least_{age_threshold}"
+        metadata[column] = (metadata["age"] >= age_threshold)
+        age_columns.append(column)
+    categorical_features_columns.extend(age_columns)
+    metadata.fillna(metadata[age_columns].mean().to_dict())
+    metadata[categorical_features_columns] = metadata[categorical_features_columns].astype(np.float32)
+    return metadata, class_encoder, categorical_features_columns
 
 
 def encode_diagnoses(
@@ -74,8 +102,8 @@ def split_train_validation(
     train_indices: ndarray
     validation_indices: ndarray
     train_indices, validation_indices = (
-        GroupShuffleSplit(n_splits=1, test_size=holdout_share)
-        .split(X=metadata, groups=metadata["lesion_id"])
+        StratifiedShuffleSplit(n_splits=1, test_size=holdout_share)
+        .split(X=metadata, y=metadata["diagnosis_idx"])
         .__iter__()
         .__next__()
     )
@@ -96,58 +124,54 @@ class HAMDataset(Dataset):
     def __init__(
         self,
         metadata: pd.DataFrame,
+        categorical_features_columns: List[str],
         transform: Optional[Callable[[Image.Image], torch.Tensor]] = None,
     ) -> None:
         self.metadata: pd.DataFrame = metadata.reset_index(drop=True)
         if transform is None:
             transform = Compose([ToTensor()])
         self.transform = transform
+        self.categorical_features = metadata.loc[:, categorical_features_columns].values
 
     def __len__(self):
         return len(self.metadata)
 
-    def __getitem__(self, index: int) -> Tuple[torch.Tensor, torch.Tensor]:
-        X = self.transform(Image.open(self.metadata.at[index, "path"]))
-        y = torch.tensor(int(self.metadata.at[index, "diagnosis_idx"]))
-        return X, y
+    def __getitem__(
+        self, index: int
+    ) -> Tuple[Tuple[torch.Tensor, torch.Tensor], torch.Tensor]:
+        paths_to_images = self.metadata.at[index, "paths"]
+        path_to_random_image = random.choice(paths_to_images)
+        image_as_tensor = self.transform(Image.open(path_to_random_image))
+        labels = torch.tensor(int(self.metadata.at[index, "diagnosis_idx"]))
+        categorical_features = torch.tensor(self.categorical_features[index, :])
+        return (image_as_tensor, categorical_features), labels
 
 
-def pop_last_fully_connected_layer(model: nn.Module) -> Tuple[nn.Module, nn.Linear]:
-    children = list(model.children())
-    if len(children) <= 1:
-        raise ValueError(
-            f"Only sequential models are supported, {model.__class__} given."
-        )
-    last_child = children.pop()
-    if isinstance(last_child, nn.Linear):
-        last_fully_connected_layer = last_child
-    else:
-        modified_last_child, last_fully_connected_layer = pop_last_fully_connected_layer(
-            last_child
-        )
-        children.append(modified_last_child)
-    return nn.Sequential(*children), last_fully_connected_layer
-
-
-def initialize(model: nn.Module, n_classes: int, device: torch.device):
-    class ImageOnlyModel(nn.Module):
-        def __init__(self, model: nn.Module, n_classes: int):
+def initialize(
+    model: nn.Module, n_classes: int, extra_in_features: int, device: torch.device
+):
+    class ImageWithCategoricalFeaturesModel(nn.Module):
+        def __init__(self, model: nn.Module, n_classes: int, extra_in_features: int):
             super().__init__()
-            self.cnn, last_fully_connected_layer = pop_last_fully_connected_layer(model)
-            self.modified_fully_connected_layer = nn.Linear(
-                last_fully_connected_layer.in_features, n_classes
+            self.cnn = model
+            total_in_features = model.classifier.in_features + extra_in_features
+            self.cnn.classifier = nn.Identity()
+            self.last_fully_connected_layer = nn.Linear(
+                in_features=total_in_features, out_features=n_classes
             )
 
-            for parameter in self.cnn.parameters():
-                parameter.requires_grad = False
+        def forward(self, image_and_categorical_features):
+            image, categorical_features = image_and_categorical_features
+            image_features = self.cnn(image)
+            features_united = torch.cat([image_features, categorical_features], dim=1)
+            log_probabilities = self.last_fully_connected_layer(features_united)
+            return log_probabilities
 
-        def forward(self, image):
-            features = self.cnn(image)
-            return self.modified_fully_connected_layer(features)
-
-    image_only_model = ImageOnlyModel(model, n_classes=n_classes)
-    image_only_model.to(device, non_blocking=True)
-    return image_only_model
+    wrapper = ImageWithCategoricalFeaturesModel(
+        model, n_classes=n_classes, extra_in_features=extra_in_features
+    )
+    wrapper.to(device, non_blocking=True)
+    return wrapper
 
 
 @dataclass
@@ -166,7 +190,7 @@ def main(
 ]:
     directory = Path(__file__) / ".."
 
-    metadata, class_encoder = preprocess_metadata(
+    metadata, class_encoder, categorical_features_columns = preprocess_metadata(
         images_directory=directory / "images",
         metadata_filename=directory / "HAM10000_metadata.csv",
     )
@@ -176,30 +200,44 @@ def main(
     )
     transform = transforms.Compose(
         [
-            transforms.RandomRotation(45),
+            transforms.RandomRotation(180),
             transforms.RandomHorizontalFlip(),
-            transforms.RandomVerticalFlip(),
             transforms.RandomResizedCrop(224),
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
         ]
     )
+    num_workers = 1
+    batch_size = 4
     train_loader = DataLoader(
-        dataset=HAMDataset(metadata_train, transform=transform),
-        batch_size=32,
+        dataset=HAMDataset(
+            metadata=metadata_train,
+            transform=transform,
+            categorical_features_columns=categorical_features_columns,
+        ),
+        batch_size=batch_size,
         shuffle=True,
         pin_memory=True,
-        num_workers=8,
+        num_workers=num_workers,
     )
     validation_loader = DataLoader(
-        dataset=HAMDataset(metadata_validation, transform=transform),
-        batch_size=32,
+        dataset=HAMDataset(
+            metadata_validation,
+            transform=transform,
+            categorical_features_columns=categorical_features_columns,
+        ),
+        batch_size=batch_size,
         shuffle=True,
         pin_memory=True,
-        num_workers=8,
+        num_workers=num_workers,
     )
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = initialize(models.resnet152(pretrained=True), n_classes=7, device=device)
+    model = initialize(
+        models.densenet121(pretrained=True),
+        n_classes=7,
+        extra_in_features=len(categorical_features_columns),
+        device=device,
+    )
 
     optimizer = optim.Adam(model.parameters(), lr=1e-3)
 
@@ -211,7 +249,6 @@ def main(
         model=model,
         metrics={
             "cross-entropy": Loss(loss),
-            "accuracy": Accuracy(),
             "confusion-matrix": ConfusionMatrix(num_classes=7),
         },
         device=device,
@@ -236,7 +273,7 @@ def main(
         validation_loss = metrics["cross-entropy"]
         if best_validation_loss is None or validation_loss < best_validation_loss:
             best_validation_loss = validation_loss
-            torch.save(model.state_dict(), MODEL_PATH)
+            # torch.save(model.state_dict(), MODEL_PATH)
             confusion_matrix.matrix_data = metrics["confusion-matrix"].numpy()
 
     @trainer.on(Events.EPOCH_COMPLETED)
@@ -244,7 +281,7 @@ def main(
         evaluator.run(train_loader)
         metrics = evaluator.state.metrics
         print(
-            f"Training Results - Epoch: {trainer.state.epoch}  Avg accuracy: {metrics['accuracy']:.2f} Avg loss: {metrics['cross-entropy']:.2f}"
+            f"Training Results - Epoch: {trainer.state.epoch} Avg loss: {metrics['cross-entropy']:.2f}"
         )
         for metric_name, metric_value in metrics.items():
             train_results[metric_name].append(metric_value)
@@ -261,7 +298,7 @@ def main(
         evaluator.run(validation_loader)
         metrics = evaluator.state.metrics
         print(
-            f"Validation Results - Epoch: {engine.state.epoch}  Avg accuracy: {metrics['accuracy']:.2f} Avg loss: {metrics['cross-entropy']:.2f}"
+            f"Validation Results - Epoch: {engine.state.epoch} Avg loss: {metrics['cross-entropy']:.2f}"
         )
         for metric_name, metric_value in metrics.items():
             validation_results[metric_name].append(metric_value)
@@ -273,4 +310,8 @@ def main(
 
 
 if __name__ == "__main__":
-    model, train_metrics, validation_metrics, confusion_matrix_dto = main(3)
+    torch.cuda.empty_cache()
+    _, train_metrics, validation_metrics, confusion_matrix = main(10)
+    print(f"Train metrics: {train_metrics}.")
+    print(f"Validation metrics: {validation_metrics}.")
+    print(f"Confusion matrix: {confusion_matrix}.")
