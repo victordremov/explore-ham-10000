@@ -81,7 +81,6 @@ Model 1 - logistic regression, Models 2-4 - are convolutional neural networks (C
 
 ### Suggestion of a performance metric for the model and explaining its clinical relevance
 First thing I deduplicated descriptions of lesions that have several images. Specifically, images of same lesion were grouped into single list. This removes bias made by duplicated sex, age and lesion localization.
-[TODO example]
 
 Interpretable metrics:
 - sensitivity and specificity for each class evaluated on validation data
