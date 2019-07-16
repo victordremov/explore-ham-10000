@@ -48,7 +48,7 @@ def preprocess_metadata(
     original_metadata["diagnosis_idx"], class_encoder = encode_diagnoses(
         original_metadata
     )
-    add_path_column_inplace(str(images_directory), original_metadata)
+    add_path_column_inplace(images_directory, original_metadata)
     paths = original_metadata.groupby(by="lesion_id").agg(
         {"path": lambda x: x.tolist()}
     )
