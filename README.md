@@ -55,19 +55,19 @@ Model 1 - logistic regression, Models 2-4 - are convolutional neural networks (C
 
 1. Logistic regression on one-hot encoded sex, age and lesion's localization. Images are ignored.
 
-    Metrics values: TODO
+![Confusion matrix for linear regression that uses categorical features only](categorical-features-only.png)
 
 2. Use frosen pretrained DenseNet201 to extract features from images, train logistic regression upon these features. Sex, age and lesions's localization are ignored.
     
     Metrics values: TODO
 
-3. Finetuning pretrained DenseNet201 with last fully-connected layer changed to match actual class count. Sex, age and lesions's localization are ignored.
- 
-    Metrics values: []
-
-4. Use all features: features are extracted from with pretrained DenseNet201 with last fully-connected layer removed, concatenated with one-hot encoded sex, age and lesion's localization and a fully connected layer stacked upon them.
+3. Finetuning pretrained DenseNet121 with last fully-connected layer changed to match actual class count. Sex, age and lesions's localization are ignored.
 
     Metrics values: TODO
+
+4. Use all features: features are extracted from with pretrained DenseNet121 with last fully-connected layer removed, concatenated with one-hot encoded sex, age and lesion's localization and a fully connected layer stacked upon them.
+
+![Confusion Matrix](confusion_matrix_image_with_categorical.png)
 
 ### Small data set size implications on choices to solve the problem
 1) Image feature extractors are underfitted because input is not very diverse. This may be overcome by using transfer learning - CNN initialized with a good initial point trains faster and usually performs better. Also image augmentation increase input diversity. In this work images augmented with random rescaling, rotation and reflection to imitate making image from different angles and with various magnification.
