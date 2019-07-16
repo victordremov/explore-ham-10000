@@ -63,7 +63,7 @@ Model 1 - logistic regression, Models 2-4 - are convolutional neural networks (C
 
 3. Finetuning pretrained DenseNet201 with last fully-connected layer changed to match actual class count. Sex, age and lesions's localization are ignored.
  
-    Metrics values: TODO
+    Metrics values: []
 
 4. Use all features: features are extracted from with pretrained DenseNet201 with last fully-connected layer removed, concatenated with one-hot encoded sex, age and lesion's localization and a fully connected layer stacked upon them.
 
