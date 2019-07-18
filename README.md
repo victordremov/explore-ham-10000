@@ -113,3 +113,5 @@ TODO: statistical significance of the verification results.
 Confusion matrix in dynamics: confusion matrix on validation set for model, trained on images and categorical features.
 
 ![Confusion Matrix in Dynamics](images-and-categorical-features-confusion-matrix-in-dynamics.gif)
+
+![Cross-entropy Loss: Train vs Validation](cross-entropy-in-dynamic.png)
