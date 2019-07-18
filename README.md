@@ -57,9 +57,9 @@ Model 1 - logistic regression, Models 2-4 - are convolutional neural networks (C
 
 ![Confusion matrix for linear regression that uses categorical features only](categorical-features-only.png)
 
-2. Use frosen pretrained DenseNet121 to extract features from images, train logistic regression upon these features. Sex, age and lesions's localization are ignored.
+2. Use frozen pretrained DenseNet121 to extract features from images, train logistic regression upon these features. Sex, age and lesions's localization are ignored.
     
-    Metrics values: TODO
+![Confusion matrix for frozen pretrained DenseNet121, image features only](confusion-matrix-image-only-frozen.png)
 
 3. Finetuning pretrained DenseNet121 with last fully-connected layer changed to match actual class count. Sex, age and lesions's localization are ignored.
 
