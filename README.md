@@ -69,6 +69,9 @@ Model 1 - logistic regression, Models 2-4 - are convolutional neural networks (C
 
 ![Confusion Matrix](confusion_matrix_image_with_categorical.png)
 
+![Sensitivity with Confidence Levels](sensitivity-with-error-bars.png)
+![Specificity with Confidence Levels](specificity-with-error-bars.png)
+
 ### Small data set size implications on choices to solve the problem
 1) Image feature extractors are underfitted because input is not very diverse. This may be overcome by using transfer learning - CNN initialized with a good initial point trains faster and usually performs better. Also image augmentation increase input diversity. In this work images augmented with random rescaling, rotation and reflection to imitate making image from different angles and with various magnification.
 2) Add data from other datasets (not done in this report)
