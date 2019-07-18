@@ -110,4 +110,6 @@ Stratification is used to fight class imbalance, and there only 3 folds to incre
 TODO: statistical significance of the verification results.
 
 ### Visualize the results and the learning procedure.
-TODO: paste images
+Confusion matrix in dynamics: confusion matrix on validation set for model, trained on images and categorical features.
+
+![Confusion Matrix in Dynamics](images-and-categorical-features-confusion-matrix-in-dynamics.gif)
