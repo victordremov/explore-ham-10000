@@ -1,4 +1,13 @@
 # Exploring HAM 10000 Skin Cancer Dataset
+This article tells us about HAM10000 dataset, how can it be used in skin cancer diagnostics and how the dataset is different from real world. 
+
+The HAM10000 dataset is a large collection of multi-source dermatoscopic images of common pigmented skin lesions. Philipp Tschandl, Cliff Rosendahl and Harald Kittler published it in August, 2019. It consists of 10k dermatoscopic images of skin lesions, described with patient's sex, age, lesion's localization, diagnosis and how this diagnosis was obtained.
+
+Here are some examples:
+
+image | diagnosis | patient's sex | patient's age | lesion localization | diagnosis type
+--- | --- | --- | --- | --- | ---
+a | b | c | d | e | f
 
 ## Report structure
 The report is focused on
