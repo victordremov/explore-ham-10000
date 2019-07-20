@@ -1,5 +1,4 @@
 # Exploring HAM 10000 Skin Cancer Dataset
-2019.07.13 - 2019.07.14
 
 ## Report structure
 The report is focused on
