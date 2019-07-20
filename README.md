@@ -67,7 +67,7 @@ Model 1 - logistic regression, Models 2-4 - are convolutional neural networks (C
 
 4. Use all features: features are extracted from with pretrained DenseNet121 with last fully-connected layer removed, concatenated with one-hot encoded sex, age and lesion's localization and a fully connected layer stacked upon them.
 
-![Confusion Matrix](confusion_matrix_image_with_categorical.png)
+![Confusion Matrix](confusion-matrix-images-with-categorical.png)
 
 ![Sensitivity with Confidence Levels](sensitivity-with-error-bars.png)
 ![Specificity with Confidence Levels](specificity-with-error-bars.png)
