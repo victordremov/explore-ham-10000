@@ -70,7 +70,7 @@ Model 1 - logistic regression, Models 2-4 - are convolutional neural networks (C
 ### Small data set size implications on choices to solve the problem
 1) Image feature extractors are underfitted because input is not very diverse. This may be overcome by using transfer learning - CNN initialized with a good initial point trains faster and usually performs better. Also image augmentation increase input diversity. In this work images augmented with random rescaling, rotation and reflection to imitate making image from different angles and with various magnification.
 2) Add data from other datasets (not done in this report)
-3) When comparing models with very close performance, sometimes we have to use k-fold validation or even repeated k-fold validation to lower p-value and confidence interval for metrics (not done in this report).
+3) When comparing models with very close performance, sometimes we have to use k-fold validation or even repeated k-fold validation to lower p-value and confidence interval for metrics (not done in this report as it uses too much time).
 
 ### Selection and description of a suitable set of training techniques.
 - data augmentation: images are randomly rotated, cropped and resized. Sex, and location are one-hot encoded. Age is encoded as several 0/1 columns: (age <= 0), (age <= 5), (age <= 10) and so on to presume age order. Missing values are filled with column mean.
