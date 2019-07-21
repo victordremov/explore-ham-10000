@@ -95,8 +95,10 @@ Interpretable metrics:
     Having these losses (time, treatment cost, impact on patient health) estimated and put in the same scale, we can evaluate how well our models solves specific business goals. This helps us greatly to specify optimization problem and minimize cumulative costs.
 
 ### Verifying the final model and verify the model. You can split the dataset as you wish but motivate and explain your choices.
+![Confusion Matrix](confusion-matrix-images-with-categorical.png)
 
 ![Sensitivity with Confidence Levels](sensitivity-with-error-bars.png)
+
 ![Specificity with Confidence Levels](specificity-with-error-bars.png)
 
 
