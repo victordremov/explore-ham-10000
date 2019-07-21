@@ -1,19 +1,9 @@
 # Exploring HAM 10000 Skin Cancer Dataset
-This article tells us about HAM10000 dataset, how can it be used in skin cancer diagnostics and how the dataset is different from real world. 
-
-The HAM10000 dataset is a large collection of multi-source dermatoscopic images of common pigmented skin lesions. Philipp Tschandl, Cliff Rosendahl and Harald Kittler published it in August, 2019. It consists of 10k dermatoscopic images of skin lesions, described with patient's sex, age, lesion's localization, diagnosis and how this diagnosis was obtained.
-
-Here are some examples:
-
-image | diagnosis | patient's sex | patient's age | lesion localization | diagnosis type
---- | --- | --- | --- | --- | ---
-a | b | c | d | e | f
-
 ## Report structure
 The report is focused on
 1) getting initial dataset and skin cancer diagnostics understanding
-1) planning product development process that allows short iteration-feedback loop
-1) prototyping base solution to have enough data to discuss with dermatologists
+1) planning product development process
+1) prototyping base solution to get feedback on it when first interviewing dermatologists
 
 In my experience, understanding strategic goals and developing step by step approach on how to reach them gives much more results than concentrating on model building as a task in itself. I see modeling as a part of product development cycle: business goals - data gathering - modeling - evaluation - production. Modeling is very much dependant on such factors as: who will be users of the model -patients or doctors, what budget we have in the company, what is the optimal balance between quality of improved diagnostics and its cost, application methods - online or embedded into diagnostics systems, etc 
 
@@ -77,9 +67,6 @@ Model 1 - logistic regression, Models 2-4 - are convolutional neural networks (C
 
 ![Confusion Matrix](confusion-matrix-images-with-categorical.png)
 
-![Sensitivity with Confidence Levels](sensitivity-with-error-bars.png)
-![Specificity with Confidence Levels](specificity-with-error-bars.png)
-
 ### Small data set size implications on choices to solve the problem
 1) Image feature extractors are underfitted because input is not very diverse. This may be overcome by using transfer learning - CNN initialized with a good initial point trains faster and usually performs better. Also image augmentation increase input diversity. In this work images augmented with random rescaling, rotation and reflection to imitate making image from different angles and with various magnification.
 2) Add data from other datasets (not done in this report)
@@ -107,18 +94,11 @@ Interpretable metrics:
 
     Having these losses (time, treatment cost, impact on patient health) estimated and put in the same scale, we can evaluate how well our models solves specific business goals. This helps us greatly to specify optimization problem and minimize cumulative costs.
 
-More sensitive (but sadly not interpretable) metrics:
-- mean difference between predicted probability of the true class and predicted probability of the predicted class
+### Verifying the final model and verify the model. You can split the dataset as you wish but motivate and explain your choices.
 
-All models we build here optimize cross-entropy internally, so it will also be included in statistics.
-- cross-entropy
+![Sensitivity with Confidence Levels](sensitivity-with-error-bars.png)
+![Specificity with Confidence Levels](specificity-with-error-bars.png)
 
-
-### Specify a verification method for the final model and verify the model. You can split the dataset as you wish but motivate and explain your choices.
-Group different images of same lesion and then cross-validate with stratified 3-fold. Validation images are augmented the same way as training set.
-Stratification is used to fight class imbalance, and there only 3 folds to increase training speed.
-
-TODO: statistical significance of the verification results.
 
 ### Visualize the results and the learning procedure.
 Confusion matrix in dynamics: confusion matrix on validation set for model, trained on images and categorical features.
