@@ -97,6 +97,8 @@ Interpretable metrics:
 ### Verifying the final model and verify the model. You can split the dataset as you wish but motivate and explain your choices.
 ![Confusion Matrix](confusion-matrix-images-with-categorical.png)
 
+The sensitivity and specificity for each lesion type. Error bars provide 95% confidence intervals. This confidence intervals can be easily made 2.23 times smaller if use 5-fold validation instead of 20%-holdout set, but it was not done as it is a very time consuming at the initial step.
+
 ![Sensitivity with Confidence Levels](sensitivity-with-error-bars.png)
 
 ![Specificity with Confidence Levels](specificity-with-error-bars.png)
