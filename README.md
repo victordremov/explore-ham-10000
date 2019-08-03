@@ -14,7 +14,7 @@ To sum up, it is really important to specify the problem itself as this heavily 
 - 7470 pigmented lesions with 1-6 images each, 10015 lesion images in total
 - Each lesion described with lesion's localization, patient's age and sex, and how the diagnosis was obtained
 - 7 different diagnosis, highly unbalanced class size. Most common lesion type in dataset with 5400 examples is melanocitic nevi. Least common is dermatofibroma having 73 examples.
-- Lesion types distribution significally differs for males and females. For instance, melanoma is significantly more common among males then among female (for significance level 0.5%). It means that patient's sex is a valuable feature for diagnostics. The same holds for patient age and lesion localization.
+- Lesion types distribution significantly differs for males and females. For instance, melanoma is significantly more common among males then among female (for significance level 0.5%). It means that patient's sex is a valuable feature for diagnostics. The same holds for patient age and lesion localization.
 
 ### Diving into [dataset descriptor paper](https://arxiv.org/ftp/arxiv/papers/1803/1803.10417.pdf "Tschandl, P. et al. The HAM10000 dataset, a large collection of multi-source dermatoscopic images of common pigmented skin lesions. Sci. Data 5:180161 doi: 10.1038/ sdata.2018.161 (2018).")
 - Blurry and insufficiently scaled images, non-pigmented lesions are removed from the dataset
@@ -24,7 +24,7 @@ To sum up, it is really important to specify the problem itself as this heavily 
 - Such features of lesions as: structure symmetry, color and quantity of colored inclusions, are important for correct diagnostics. For better problem solving, our model should extract these features. 
 
 ### Validating lesion types representation in dataset
-Lesion type frequences in the dataset does not represent real world frequences.
+Lesion type frequencies in the dataset does not represent real world frequences.
 
 For instance, [Skin cancer foundation](www.skincancer.org) statistics tells us that pigmented basal cell carcinoma is 6 times more common then pigmented melanoma in the USA. Even if proportion is different in other countries, it is highly unlikely for melanoma to be 2 times more common in the dataset.
 
@@ -53,19 +53,19 @@ Model 1 - logistic regression, Models 2-4 - are convolutional neural networks (C
 
 1. Logistic regression on one-hot encoded sex, age and lesion's localization. Images are ignored.
 
-![Confusion matrix for linear regression that uses categorical features only](categorical-features-only.png)
+![Confusion matrix for linear regression that uses categorical features only](docs/categorical-features-only.png)
 
 2. Use frozen pretrained DenseNet121 to extract features from images, train logistic regression upon these features. Sex, age and lesions's localization are ignored.
     
-![Confusion matrix for frozen pretrained DenseNet121, image features only](confusion-matrix-image-only-frozen.png)
+![Confusion matrix for frozen pretrained DenseNet121, image features only](docs/confusion-matrix-image-only-frozen.png)
 
 3. Finetuning pretrained DenseNet121 with last fully-connected layer changed to match actual class count. Sex, age and lesions's localization are ignored.
 
-![Confusion Matrix for finetuned pretrained DenseNet121](image-features-only.png)
+![Confusion Matrix for finetuned pretrained DenseNet121](docs/image-features-only.png)
 
 4. Use all features: features are extracted from with pretrained DenseNet121 with last fully-connected layer removed, concatenated with one-hot encoded sex, age and lesion's localization and a fully connected layer stacked upon them.
 
-![Confusion Matrix](confusion-matrix-images-with-categorical.png)
+![Confusion Matrix](docs/confusion-matrix-images-with-categorical.png)
 
 ### Small data set size implications on choices to solve the problem
 1) Image feature extractors are underfitted because input is not very diverse. This may be overcome by using transfer learning - CNN initialized with a good initial point trains faster and usually performs better. Also image augmentation increase input diversity. In this work images augmented with random rescaling, rotation and reflection to imitate making image from different angles and with various magnification.
@@ -95,18 +95,18 @@ Interpretable metrics:
     Having these losses (time, treatment cost, impact on patient health) estimated and put in the same scale, we can evaluate how well our models solves specific business goals. This helps us greatly to specify optimization problem and minimize cumulative costs.
 
 ### Verifying the final model and verify the model. You can split the dataset as you wish but motivate and explain your choices.
-![Confusion Matrix](confusion-matrix-images-with-categorical.png)
+![Confusion Matrix](docs/confusion-matrix-images-with-categorical.png)
 
 The sensitivity and specificity for each lesion type. Error bars provide 95% confidence intervals. This confidence intervals can be easily made 2.23 times smaller if use 5-fold validation instead of 20%-holdout set, but it was not done as it is a very time consuming at the initial step.
 
-![Sensitivity with Confidence Levels](sensitivity-with-error-bars.png)
+![Sensitivity with Confidence Levels](docs/sensitivity-with-error-bars.png)
 
-![Specificity with Confidence Levels](specificity-with-error-bars.png)
+![Specificity with Confidence Levels](docs/specificity-with-error-bars.png)
 
 
 ### Visualize the results and the learning procedure.
 Confusion matrix in dynamics: confusion matrix on validation set for model, trained on images and categorical features.
 
-![Confusion Matrix in Dynamics](images-and-categorical-features-confusion-matrix-in-dynamics.gif)
+![Confusion Matrix in Dynamics](docs/images-and-categorical-features-confusion-matrix-in-dynamics.gif)
 
-![Cross-entropy Loss: Train vs Validation](cross-entropy-in-dynamic.png)
+![Cross-entropy Loss: Train vs Validation](docs/cross-entropy-in-dynamic.png)
