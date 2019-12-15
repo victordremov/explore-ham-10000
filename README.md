@@ -53,19 +53,19 @@ Model 1 - logistic regression, Models 2-4 - are convolutional neural networks (C
 
 1. Logistic regression on one-hot encoded sex, age and lesion's localization. Images are ignored.
 
-![Confusion matrix for linear regression that uses categorical features only](docs/categorical-features-only.png)
+![Confusion matrix for linear regression that uses categorical features only](static/images/categorical-features-only.png)
 
 2. Use frozen pretrained DenseNet121 to extract features from images, train logistic regression upon these features. Sex, age and lesions's localization are ignored.
     
-![Confusion matrix for frozen pretrained DenseNet121, image features only](docs/confusion-matrix-image-only-frozen.png)
+![Confusion matrix for frozen pretrained DenseNet121, image features only](static/images/confusion-matrix-image-only-frozen.png)
 
 3. Finetuning pretrained DenseNet121 with last fully-connected layer changed to match actual class count. Sex, age and lesions's localization are ignored.
 
-![Confusion Matrix for finetuned pretrained DenseNet121](docs/image-features-only.png)
+![Confusion Matrix for finetuned pretrained DenseNet121](static/images/image-features-only.png)
 
 4. Use all features: features are extracted from with pretrained DenseNet121 with last fully-connected layer removed, concatenated with one-hot encoded sex, age and lesion's localization and a fully connected layer stacked upon them.
 
-![Confusion Matrix](docs/confusion-matrix-images-with-categorical.png)
+![Confusion Matrix](static/images/confusion-matrix-images-with-categorical.png)
 
 ### Small data set size implications on choices to solve the problem
 1) Image feature extractors are underfitted because input is not very diverse. This may be overcome by using transfer learning - CNN initialized with a good initial point trains faster and usually performs better. Also image augmentation increase input diversity. In this work images augmented with random rescaling, rotation and reflection to imitate making image from different angles and with various magnification.
@@ -95,18 +95,18 @@ Interpretable metrics:
     Having these losses (time, treatment cost, impact on patient health) estimated and put in the same scale, we can evaluate how well our models solves specific business goals. This helps us greatly to specify optimization problem and minimize cumulative costs.
 
 ### Verifying the final model and verify the model. You can split the dataset as you wish but motivate and explain your choices.
-![Confusion Matrix](docs/confusion-matrix-images-with-categorical.png)
+![Confusion Matrix](static/images/confusion-matrix-images-with-categorical.png)
 
 The sensitivity and specificity for each lesion type. Error bars provide 95% confidence intervals. This confidence intervals can be easily made 2.23 times smaller if use 5-fold validation instead of 20%-holdout set, but it was not done as it is a very time consuming at the initial step.
 
-![Sensitivity with Confidence Levels](docs/sensitivity-with-error-bars.png)
+![Sensitivity with Confidence Levels](static/images/sensitivity-with-error-bars.png)
 
-![Specificity with Confidence Levels](docs/specificity-with-error-bars.png)
+![Specificity with Confidence Levels](static/images/specificity-with-error-bars.png)
 
 
 ### Visualize the results and the learning procedure.
 Confusion matrix in dynamics: confusion matrix on validation set for model, trained on images and categorical features.
 
-![Confusion Matrix in Dynamics](docs/images-and-categorical-features-confusion-matrix-in-dynamics.gif)
+![Confusion Matrix in Dynamics](static/images/images-and-categorical-features-confusion-matrix-in-dynamics.gif)
 
-![Cross-entropy Loss: Train vs Validation](docs/cross-entropy-in-dynamic.png)
+![Cross-entropy Loss: Train vs Validation](static/images/cross-entropy-in-dynamic.png)
